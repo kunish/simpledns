@@ -1,0 +1,122 @@
+on: [push]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - build: armv7-linux-musl
+            os: ubuntu-latest
+            toolchain: stable
+            use-cross: true
+            target: armv7-unknown-linux-musleabihf
+            ext: ""
+
+          - build: armv7-linux-gnu
+            os: ubuntu-latest
+            toolchain: stable
+            use-cross: true
+            target: armv7-unknown-linux-gnueabihf
+            ext: ""
+
+          - build: x86_64-linux-musl
+            os: ubuntu-latest
+            toolchain: stable
+            use-cross: true
+            target: x86_64-unknown-linux-musl
+            ext: ""
+
+          - build: x86_64-linux-gnu
+            os: ubuntu-latest
+            toolchain: stable
+            use-cross: false
+            target: x86_64-unknown-linux-gnu
+            ext: ""
+
+          - build: aarch64-macos
+            os: macos-latest
+            toolchain: stable
+            use-cross: true
+            target: aarch64-apple-darwin
+            ext: ""
+
+          - build: x86_64-macos
+            os: macos-latest
+            toolchain: stable
+            use-cross: false
+            target: x86_64-apple-darwin
+            ext: ""
+
+          - build: x86_64-windows-gnu
+            os: ubuntu-latest
+            toolchain: stable
+            use-cross: true
+            target: x86_64-pc-windows-gnu
+            ext: ".exe"
+
+          - build: x86_64-windows-msvc
+            os: windows-latest
+            toolchain: stable
+            use-cross: false
+            target: x86_64-pc-windows-msvc
+            ext: ".exe"
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: install rust ${{ matrix.target }} ${{ matrix.toolchain }} toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: prepare cross
+        run: cargo install cross
+        if: ${{ matrix.use-cross }}
+
+      - name: cross build ${{ matrix.target }} release binaries
+        shell: bash
+        run: |
+          export CARGO_COMMAND=`which cross 2>/dev/null || which cargo`
+          $CARGO_COMMAND build --release --all-features --target=${{ matrix.target }}
+
+      - name: gather all binaries into output folder for upload
+        shell: bash
+        run: |
+          mkdir outputs
+          mv target/${{ matrix.target }}/release/sdns${{ matrix.ext }} outputs/
+
+      - name: upload binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifact
+          path: outputs/
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: download binaries
+        uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: outputs/
+
+      - name: create release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          generate_release_notes: true
+          files: outputs/*
+        if: startsWith(github.ref, 'refs/tags')
