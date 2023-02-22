@@ -24,11 +24,13 @@ impl Debug for Upstream {
 impl Upstream {
     pub fn new(addr: &str) -> Option<Self> {
         let mut resolver_config = ResolverConfig::new();
+        let mut resolver_opts = ResolverOpts::default();
+        resolver_opts.cache_size = 0;
 
         if let Some(addr) = addr.parse::<SocketAddr>().ok() {
             resolver_config.add_name_server(NameServerConfig::new(addr, Protocol::Udp));
 
-            let resolver = Resolver::new(resolver_config, ResolverOpts::default()).ok();
+            let resolver = Resolver::new(resolver_config, resolver_opts).ok();
 
             if let Some(resolver) = resolver {
                 return Some(Self { addr, resolver });
