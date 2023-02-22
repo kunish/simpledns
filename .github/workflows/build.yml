@@ -91,7 +91,7 @@ jobs:
         shell: bash
         run: |
           mkdir outputs
-          mv target/${{ matrix.target }}/release/sdns${{ matrix.ext }} outputs/
+          mv target/${{ matrix.target }}/release/sdns${{ matrix.ext }} outputs/sdns-${{ matrix.target }}${{ matrix.ext }}
 
       - name: upload binaries
         uses: actions/upload-artifact@v3
