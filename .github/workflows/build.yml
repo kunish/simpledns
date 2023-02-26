@@ -1,11 +1,26 @@
-on: [push]
+on:
+  push:
+    branches: main
 
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
+  release_please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - name: release please
+        id: release
+        uses: google-github-actions/release-please-action@v3
+        with:
+          release-type: rust
+
   build:
+    needs: release_please
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -101,9 +116,10 @@ jobs:
           path: outputs/
 
   release:
-    needs: build
+    needs:
+      - release_please
+      - build
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
 
@@ -113,7 +129,8 @@ jobs:
           name: artifact
           path: outputs/
 
-      - name: release please
-        uses: google-github-actions/release-please-action@v3
+      - name: release
+        uses: softprops/action-gh-release@v1
         with:
-          release-type: rust
+          files: outputs/*
+          tag_name: ${{ needs.release_please.outputs.tag_name }}
