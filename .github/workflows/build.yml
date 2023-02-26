@@ -112,11 +112,7 @@ jobs:
           name: artifact
           path: outputs/
 
-      - name: create release
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: release please
+        uses: google-github-actions/release-please-action@v3
         with:
-          generate_release_notes: true
-          files: outputs/*
-        if: startsWith(github.ref, 'refs/tags')
+          release-type: rust
