@@ -13,11 +13,12 @@ jobs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
-      - name: release please
+      - name: draft
         id: release
         uses: google-github-actions/release-please-action@v3
         with:
           release-type: rust
+          draft: true
 
   build:
     needs: release_please
@@ -129,6 +130,11 @@ jobs:
         with:
           name: artifact
           path: outputs/
+      
+      - name: official
+        run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: release
         uses: softprops/action-gh-release@v1
