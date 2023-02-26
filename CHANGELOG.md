@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/kunish/simpledns/compare/v0.4.0...v0.5.0) (2023-02-26)
+
+
+### Features
+
+* release please ([ccc416a](https://github.com/kunish/simpledns/commit/ccc416ac32d0e8623b15bfd7feffe5c11ed23342))
+
 ## [0.4.0](https://github.com/kunish/simpledns/compare/v0.3.0...v0.4.0) (2023-02-26)
 
 
