@@ -41,7 +41,7 @@ jobs:
           - build: aarch64-macos
             os: macos-latest
             toolchain: stable
-            use-cross: true
+            use-cross: false
             target: aarch64-apple-darwin
             ext: ""
 
