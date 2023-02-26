@@ -123,8 +123,6 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ needs.release_please.outputs.release_created == 'true' }}
     steps:
-      - uses: actions/checkout@v3
-
       - name: download binaries
         uses: actions/download-artifact@v3
         with:
@@ -132,7 +130,7 @@ jobs:
           path: outputs/
       
       - name: official
-        run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false
+        run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=${{ github.repository }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
