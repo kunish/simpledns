@@ -7,22 +7,21 @@ permissions:
   pull-requests: write
 
 jobs:
-  release_please:
+  release-please:
     runs-on: ubuntu-latest
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
-      - name: draft
+      - name: release-please
         id: release
         uses: google-github-actions/release-please-action@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: rust
-          draft: true
 
   build:
-    needs: release_please
+    needs: release-please
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -119,10 +118,10 @@ jobs:
 
   release:
     needs:
-      - release_please
+      - release-please
       - build
     runs-on: ubuntu-latest
-    if: ${{ needs.release_please.outputs.release_created }}
+    if: ${{ needs.release-please.outputs.release_created }}
     steps:
       - name: download binaries
         uses: actions/download-artifact@v3
@@ -130,13 +129,8 @@ jobs:
           name: artifact
           path: outputs/
 
-      - name: official
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=${{ github.repository }}
-
-      - name: release
+      - name: attach release artifacts
         uses: softprops/action-gh-release@v1
         with:
           files: outputs/*
-          tag_name: ${{ needs.release_please.outputs.tag_name }}
+          tag_name: ${{ needs.release-please.outputs.tag_name }}
