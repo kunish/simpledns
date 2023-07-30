@@ -13,8 +13,9 @@ clap = { version = "4.1.4", features = [
 	"string",
 	"wrap_help",
 ] }
+dnsclient = { version = "0.1.18", features = [
+	"async-tokio",
+], default-features = false }
 rayon = "1.6.1"
 serde = { version = "1.0.152", features = ["derive"] }
 serde_yaml = "0.9.17"
-trust-dns-resolver = { version = "0.22.0", features = ["dns-over-rustls"] }
-trust-dns-server = "0.22.0"

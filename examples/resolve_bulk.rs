@@ -8,14 +8,11 @@ fn main() {
         let responses = upstream::resolve_bulk(domain, &app.upstreams);
 
         responses.iter().for_each(|response| {
-            if let Some(response) = response {
-                println!(
-                    "upstream: {}, records: {:?}, took: {}ms",
-                    response.upstream_addr,
-                    response.records,
-                    response.elapsed.as_millis()
-                );
-            }
+            println!(
+                "records: {:?}, took: {}ms",
+                response.records,
+                response.elapsed.as_millis()
+            );
         });
     }
 }

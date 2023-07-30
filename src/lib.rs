@@ -20,13 +20,13 @@ impl Default for RunningMode {
 pub struct App {
     pub mode: RunningMode,
     pub config: config::Config,
-    pub upstreams: Vec<Option<upstream::Upstream>>,
+    pub upstreams: Vec<upstream::Upstream>,
 }
 
 impl App {
     pub fn new(path_str: Option<&str>) -> Self {
         let config = config::Config::from_path(path_str);
-        let upstreams: Vec<Option<upstream::Upstream>> = config
+        let upstreams: Vec<upstream::Upstream> = config
             .upstreams
             .iter()
             .map(|upstream| upstream::Upstream::new(&upstream.address))

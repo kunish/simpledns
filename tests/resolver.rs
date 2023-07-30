@@ -8,12 +8,10 @@ fn test_resolve() {
     let app = setup();
 
     for upstream in app.upstreams {
-        if let Some(upstream) = upstream {
-            let response = upstream.resolve(domain);
+        let response = upstream.resolve(domain);
 
-            for result in response {
-                assert!(result.is_ipv4() || result.is_ipv6());
-            }
+        for result in response {
+            assert!(!result.is_private());
         }
     }
 }
@@ -25,14 +23,7 @@ fn test_resolve_bulk() {
 
     let responses = upstream::resolve_bulk(domain, &app.upstreams);
 
-    assert!(responses.iter().all(|response| {
-        if let Some(response) = response {
-            response
-                .records
-                .iter()
-                .all(|record| record.is_ipv4() || record.is_ipv6())
-        } else {
-            false
-        }
-    }));
+    assert!(responses
+        .iter()
+        .all(|response| { response.records.iter().all(|record| !record.is_private()) }));
 }
