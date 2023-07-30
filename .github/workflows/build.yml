@@ -122,14 +122,14 @@ jobs:
       - release_please
       - build
     runs-on: ubuntu-latest
-    if: ${{ needs.release_please.outputs.release_created == 'true' }}
+    if: ${{ needs.release_please.outputs.release_created }}
     steps:
       - name: download binaries
         uses: actions/download-artifact@v3
         with:
           name: artifact
           path: outputs/
-      
+
       - name: official
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
